@@ -1,0 +1,555 @@
+:root {
+  --bg1: #17191d;
+  --bg2: #262a31;
+  --panel: rgba(32, 35, 41, 0.84);
+  --panel-border: rgba(174, 183, 196, 0.28);
+  --text: #f3f5f8;
+  --muted: #c9ced7;
+  --field-glow: rgba(214, 221, 230, 0.2);
+  --field-border-hover: #c6cfdb;
+  --cherry-1: #63e6be;
+  --cherry-2: #12b886;
+  --cherry-3: #9775fa;
+  --cherry-4: #7048e8;
+}
+
+@font-face {
+  font-family: "Minecraft";
+  src: url("fonts/Minecraftia-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(1000px 500px at 10% -20%, rgba(220, 227, 238, 0.14), transparent 60%),
+    linear-gradient(160deg, var(--bg1), var(--bg2));
+}
+
+.app {
+  width: min(1820px, 100%);
+  margin: 0 auto;
+  padding: 18px;
+  display: grid;
+  grid-template-columns: minmax(360px, 680px) minmax(560px, 1fr);
+  gap: 16px;
+}
+
+.app.is-visual-only {
+  pointer-events: none;
+  user-select: none;
+}
+
+.panel {
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  background: var(--panel);
+  padding: 14px;
+}
+
+h2,
+h3 {
+  margin: 0 0 10px;
+  color: var(--text);
+}
+
+h2,
+#wallpaperEditor h3 {
+  text-align: center;
+  font-size: clamp(1.4rem, 2.1vw, 2.2rem);
+}
+
+#wallpaperEditor h3 {
+  margin: 34px 0 10px;
+}
+
+.pie-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.card {
+  border: 1px solid rgba(174, 183, 196, 0.26);
+  border-radius: 12px;
+  background: rgba(22, 25, 31, 0.58);
+  padding: 10px;
+}
+
+.divider {
+  height: 1px;
+  margin: 12px 0;
+  background: linear-gradient(to right, transparent, rgba(174, 183, 196, 0.4), transparent);
+}
+
+.row,
+.wp-row,
+.checks,
+.buttons {
+  display: grid;
+  gap: 10px;
+}
+
+.row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 10px;
+}
+
+.row > label:first-child {
+  padding-right: 12px;
+  border-right: 1px solid rgba(174, 183, 196, 0.34);
+}
+
+.controls-panel .row > label:last-child {
+  padding-left: 0;
+}
+
+.wp-row {
+  grid-template-columns: 1fr;
+  margin-bottom: 8px;
+}
+
+.wp-row.three {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(174, 183, 196, 0.22);
+  border-radius: 10px;
+  background: rgba(20, 23, 29, 0.42);
+}
+
+.wp-row.three > label:not(:last-child) {
+  padding-right: 10px;
+  border-right: 1px solid rgba(174, 183, 196, 0.3);
+}
+
+.wp-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.wp-grid-top,
+.wp-grid-bottom {
+  display: grid;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(174, 183, 196, 0.22);
+  border-radius: 10px;
+  background: rgba(20, 23, 29, 0.42);
+}
+
+.wp-grid-top {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wp-grid-bottom {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wp-grid-top > label,
+.wp-grid-bottom > label {
+  padding: 0;
+}
+
+.wp-grid-top > label:first-child {
+  border-right: 1px solid rgba(174, 183, 196, 0.3);
+  padding-right: 12px;
+}
+
+.wp-grid-top > label:last-child {
+  padding-left: 0;
+}
+
+.wp-grid-bottom > label:not(:last-child) {
+  border-right: 1px solid rgba(174, 183, 196, 0.3);
+  padding-right: 12px;
+}
+
+.wp-grid-bottom > label {
+  padding-left: 0;
+}
+
+label {
+  min-height: 44px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+#backgroundSettings label {
+  grid-template-columns: 140px auto;
+}
+
+#wallpaperEditor .wp-row.three > label,
+#wallpaperEditor .wp-grid-bottom > label {
+  grid-template-columns: 78px auto;
+}
+
+#backgroundSettings label > input,
+#backgroundSettings label > select,
+.row > label > input,
+.row > label > select,
+#backgroundSettings label > .num-wrap,
+.row > label > .num-wrap,
+#wallpaperEditor label > input,
+#wallpaperEditor label > select,
+#wallpaperEditor label > .num-wrap {
+  justify-self: end;
+}
+
+#wpColorControls > label {
+  padding-right: 0;
+  border-right: 0;
+}
+
+.toggle-line {
+  display: flex;
+  justify-content: flex-start;
+  gap: 8px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+#wallpaperEditor .wp-thin-toggle {
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 36px;
+  margin: 6px 2px;
+}
+
+#wallpaperEditor .wp-thin-toggle + #wallpaperCanvas {
+  margin-top: 8px;
+}
+
+input[type="number"],
+input[type="color"],
+input[type="file"],
+select,
+button {
+  margin: 0;
+  border-radius: 10px;
+}
+
+input[type="number"],
+input[type="color"],
+select,
+input[type="file"] {
+  height: 40px;
+  border: 1px solid rgba(174, 183, 196, 0.5);
+  background: rgba(47, 52, 61, 0.96);
+  color: var(--text);
+  padding: 0 10px;
+  transition: border-color 140ms ease, box-shadow 140ms ease, transform 120ms ease;
+}
+
+input[type="number"]:hover,
+input[type="color"]:hover,
+select:hover,
+input[type="file"]:hover {
+  border-color: var(--field-border-hover);
+  box-shadow: 0 0 0 3px var(--field-glow);
+}
+
+input[type="number"]:focus,
+input[type="color"]:focus,
+select:focus,
+input[type="file"]:focus {
+  outline: none;
+  border-color: #e0e5ed;
+  box-shadow: 0 0 0 3px rgba(224, 229, 237, 0.3), 0 8px 16px rgba(8, 9, 12, 0.35);
+}
+
+input[type="number"] {
+  width: 100px;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="color"] {
+  width: 128px;
+  padding: 4px;
+}
+
+select {
+  width: 240px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 34px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #e2e6ee 50%),
+    linear-gradient(135deg, #e2e6ee 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 17px,
+    calc(100% - 8px) 17px;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+input[type="file"] {
+  width: 260px;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+
+input[type="file"]::file-selector-button {
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 10px;
+  margin-right: 10px;
+  font-weight: 600;
+  color: #fff4f7;
+  background: linear-gradient(135deg, #d52f53, #a11537);
+  cursor: pointer;
+}
+
+input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid rgba(255, 171, 191, 0.48);
+  border-radius: 6px;
+  background: #252a32;
+  box-shadow: 0 4px 10px rgba(7, 8, 11, 0.35);
+  position: relative;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease, transform 120ms ease, box-shadow 160ms ease;
+}
+
+input[type="checkbox"]:hover {
+  border-color: rgba(255, 136, 166, 0.82);
+  box-shadow: 0 0 0 3px rgba(255, 116, 154, 0.2);
+}
+
+input[type="checkbox"]:checked {
+  border-color: rgba(255, 186, 204, 0.9);
+  background: linear-gradient(135deg, #ff5f84, #c01842);
+  box-shadow: 0 0 0 3px rgba(255, 95, 132, 0.24), 0 8px 14px rgba(105, 14, 41, 0.38);
+}
+
+input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 3px;
+  width: 4px;
+  height: 9px;
+  border: solid #fff6f8;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.checks {
+  grid-template-columns: 1fr;
+}
+
+.checks label {
+  justify-content: space-between;
+  min-height: 36px;
+}
+
+.checks label span {
+  color: var(--muted);
+}
+
+.checks input[type="checkbox"] {
+  margin-left: 10px;
+}
+
+.btn {
+  border: 1px solid rgba(255, 173, 193, 0.4);
+  height: 50px;
+  padding: 0 24px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(8, 10, 14, 0.36);
+  cursor: pointer;
+  transition: transform 140ms ease, filter 140ms ease, box-shadow 180ms ease, border-color 140ms ease;
+}
+
+.btn:hover {
+  filter: brightness(1.07);
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 3px rgba(255, 110, 148, 0.18), 0 14px 26px rgba(4, 10, 22, 0.45);
+}
+
+.btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 6px 14px rgba(5, 10, 20, 0.42);
+}
+
+.buttons {
+  grid-template-columns: repeat(2, max-content);
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #ff5f84, #cf1f48);
+  color: #fff5f8;
+  border-color: rgba(255, 176, 196, 0.72);
+  box-shadow: 0 12px 24px rgba(137, 23, 54, 0.45);
+}
+
+.btn-accent,
+#toggleWallpaperBtn {
+  background: linear-gradient(135deg, #e83b62, #9c1335);
+  color: #ffeef3;
+  border-color: rgba(255, 156, 180, 0.66);
+  box-shadow: 0 12px 24px rgba(90, 12, 36, 0.46);
+}
+
+.num-wrap {
+  display: inline-grid;
+  grid-template-columns: 100px 22px;
+  grid-template-rows: 18px 18px;
+  gap: 4px 6px;
+  align-items: center;
+}
+
+.num-wrap input[type="number"] {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 100px;
+  height: 40px;
+}
+
+.num-step {
+  width: 22px;
+  height: 18px;
+  border: 1px solid rgba(174, 183, 196, 0.58);
+  border-radius: 6px;
+  background: rgba(47, 52, 61, 0.95);
+  color: #e8edf5;
+  font-size: 10px;
+  padding: 0;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.num-step:hover {
+  border-color: #d5dde9;
+  box-shadow: 0 0 0 2px rgba(213, 221, 233, 0.22);
+}
+
+.wp-align-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wp-align-row > label {
+  padding-right: 10px;
+  border-right: 1px solid rgba(174, 183, 196, 0.3);
+}
+
+.wp-spacer {
+  min-height: 1px;
+}
+
+#mainCanvas,
+#wallpaperCanvas {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(174, 183, 196, 0.3);
+  background: #1d2128;
+}
+
+#wallpaperCanvas {
+  margin-top: 40px;
+}
+
+#wallpaperEditor {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transform: translateY(-10px);
+  transition: max-height 250ms ease, opacity 180ms ease, transform 250ms ease, margin-top 250ms ease;
+  margin-top: 0;
+}
+
+#wallpaperEditor.is-open {
+  max-height: 2200px;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  margin-top: 22px;
+}
+
+@media (max-width: 1400px) {
+  .app {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .pie-grid,
+  .row,
+  .wp-row.three,
+  .wp-grid-top,
+  .wp-grid-bottom,
+  .wp-align-row {
+    grid-template-columns: 1fr;
+  }
+
+  .wp-row.three > label:not(:last-child),
+  .wp-grid-top > label,
+  .wp-grid-bottom > label,
+  .wp-align-row > label {
+    border-right: 0;
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .wp-spacer {
+    display: none;
+  }
+
+  .buttons {
+    grid-template-columns: 1fr;
+  }
+
+  input[type="number"],
+  input[type="color"],
+  select,
+  input[type="file"] {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .row > label:first-child {
+    padding-right: 0;
+    border-right: 0;
+  }
+
+  .row > label:last-child {
+    padding-left: 0;
+  }
+}

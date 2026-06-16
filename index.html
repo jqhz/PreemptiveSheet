@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preemptive Cheat Sheet Creator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app">
+    <section class="panel controls-panel">
+      <div class="pie-grid">
+        <div class="card">
+          <h3>Only Spawner</h3>
+          <label>Orange <input type="number" id="orange_0" value="40" min="0" max="100"></label>
+          <label>Green <input type="number" id="green_0" value="35" min="0" max="100"></label>
+        </div>
+        <div class="card">
+          <h3>Chest in front</h3>
+          <label>Orange <input type="number" id="orange_1" value="40" min="0" max="100"></label>
+          <label>Green <input type="number" id="green_1" value="35" min="0" max="100"></label>
+        </div>
+        <div class="card">
+          <h3>Library</h3>
+          <label>Orange <input type="number" id="orange_2" value="40" min="0" max="100"></label>
+          <label>Green <input type="number" id="green_2" value="35" min="0" max="100"></label>
+        </div>
+        <div class="card">
+          <h3>Chest behind</h3>
+          <label>Orange <input type="number" id="orange_3" value="40" min="0" max="100"></label>
+          <label>Green <input type="number" id="green_3" value="35" min="0" max="100"></label>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <label class="toggle-line"><input type="checkbox" id="showBackground" checked> Background</label>
+
+      <div id="backgroundSettings" class="card">
+        <div class="row">
+          <label>Background Color <input type="color" id="bgColor" value="#ffffff"></label>
+          <label>Border Radius <input type="number" id="bgBorderRadius" value="0" min="0" max="100"></label>
+        </div>
+        <div class="row">
+          <label>Outline Color <input type="color" id="outlineColor" value="#7d7d7d"></label>
+          <label>Outline Width <input type="number" id="outlineWidth" value="6" min="0" max="20"></label>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="card">
+        <div class="row">
+          <label>Pie Outline <input type="color" id="pieOutlineColor" value="#000000"></label>
+          <label>Pie Outline Width <input type="number" id="pieOutlineWidth" value="2" min="0" max="10"></label>
+        </div>
+        <div class="row">
+          <label>Text Size <input type="number" id="textSize" value="45" min="20" max="60"></label>
+          <label>Text Outline <input type="number" id="textOutlineWidth" value="2" min="0" max="10"></label>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="card">
+        <div class="checks">
+          <label><span>Show Orange</span><input type="checkbox" id="showOrange" checked></label>
+          <label><span>Show Pink</span><input type="checkbox" id="showPink" checked></label>
+          <label><span>Show Green</span><input type="checkbox" id="showGreen" checked></label>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel preview-panel">
+      <h2>Cheat Sheet Preview</h2>
+      <canvas id="mainCanvas" width="840" height="520"></canvas>
+
+      <div class="buttons">
+        <button class="btn btn-primary" onclick="download()">Download PNG</button>
+        <button class="btn btn-accent" id="toggleWallpaperBtn">Add Wallpaper</button>
+      </div>
+
+      <div id="wallpaperEditor">
+        <h3>Wallpaper Editor</h3>
+
+        <div class="wp-row">
+          <label>Background Type
+            <select id="wpBgType">
+              <option value="color">Color</option>
+              <option value="gradient">Gradient</option>
+              <option value="image">Image</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="wp-row three wp-align-row" id="wpColorControls">
+          <label>Color <input type="color" id="wpBgColor" value="#000000"></label>
+          <div class="wp-spacer" aria-hidden="true"></div>
+          <div class="wp-spacer" aria-hidden="true"></div>
+        </div>
+
+        <div class="wp-grid" id="wpGradientControls" style="display:none;">
+          <div class="wp-grid-top">
+            <label>Color 1 <input type="color" id="wpGradientColor1" value="#000000"></label>
+            <label>Color 2 <input type="color" id="wpGradientColor2" value="#ffffff"></label>
+          </div>
+          <div class="divider"></div>
+          <div class="wp-grid-bottom">
+            <label>Rotation <input type="number" id="wpGradientRotation" value="0" min="0" max="360"></label>
+            <label>Offset <input type="number" id="wpGradientOffset" value="0" min="-1" max="1" step="0.01"></label>
+            <label>Softness <input type="number" id="wpFade" value="0.5" min="0" max="1" step="0.01"></label>
+          </div>
+        </div>
+
+        <div class="wp-row three wp-align-row" id="wpImageControls" style="display:none;">
+          <label>Image <input type="file" id="wpBgImageInput" accept="image/*"></label>
+          <div class="wp-spacer" aria-hidden="true"></div>
+          <div class="wp-spacer" aria-hidden="true"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="wp-row three">
+          <label>X <input type="number" id="wpX" value="200"></label>
+          <label>Y <input type="number" id="wpY" value="200"></label>
+          <label>Scale <input type="number" id="wpScale" value="1" step="0.01"></label>
+        </div>
+
+        <label class="toggle-line wp-thin-toggle"><span>Thin Preview</span><input type="checkbox"
+            id="wpThinPreview"></label>
+        <canvas id="wallpaperCanvas" width="1920" height="1080"></canvas>
+        <div class="buttons"><button class="btn btn-primary" onclick="downloadWallpaper()">Download Wallpaper</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
