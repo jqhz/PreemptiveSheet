@@ -31,7 +31,7 @@ export function initCheatsheet() {
 
   // The template drawn behind the pies. Loaded once; we redraw when it arrives.
   const templateImage = new Image();
-  templateImage.src = "images/template.png";
+  templateImage.src = "images/template_3spikes.png";
 
   // Listeners registered by other modules (the wallpaper editor) that want to
   // know whenever the cheatsheet is redrawn.

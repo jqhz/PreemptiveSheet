@@ -68,9 +68,9 @@ export const PIE_TEXT = {
 // laid out in a horizontal row. Tune these X/Y values to match the template
 // image once a 3-slot version replaces the current placeholder.
 export const PIE_POSITIONS = [
-  [140, 260],
-  [420, 260],
-  [700, 260],
+  [140, 300],
+  [420, 300],
+  [700, 300],
 ];
 
 export const PIE_RADIUS = 100;
