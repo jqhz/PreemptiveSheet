@@ -9,133 +9,170 @@
 </head>
 
 <body>
-  <div class="app">
-    <section class="panel controls-panel">
-      <div class="pie-grid">
-        <div class="card">
-          <h3>Only Spawner</h3>
-          <label>Orange <input type="number" id="orange_0" value="40" min="0" max="100"></label>
-          <label>Green <input type="number" id="green_0" value="35" min="0" max="100"></label>
-        </div>
-        <div class="card">
-          <h3>Chest in front</h3>
-          <label>Orange <input type="number" id="orange_1" value="40" min="0" max="100"></label>
-          <label>Green <input type="number" id="green_1" value="35" min="0" max="100"></label>
-        </div>
-        <div class="card">
-          <h3>Library</h3>
-          <label>Orange <input type="number" id="orange_2" value="40" min="0" max="100"></label>
-          <label>Green <input type="number" id="green_2" value="35" min="0" max="100"></label>
-        </div>
-        <div class="card">
-          <h3>Chest behind</h3>
-          <label>Orange <input type="number" id="orange_3" value="40" min="0" max="100"></label>
-          <label>Green <input type="number" id="green_3" value="35" min="0" max="100"></label>
-        </div>
-      </div>
+  <!-- App header: top row with title + profile bar, then the tab bar.
+       Profile bar content is built dynamically by profileUI.js.
+       Tab buttons are built by tabs.js from the config in main.js. -->
+  <header class="app-header">
+    <div class="header-top">
+      <h1 class="app-title">Preemptive</h1>
+      <!-- Profile selector, Save, and Manage buttons rendered here by profileUI.js -->
+      <div class="profile-bar" id="profileBar" aria-label="Profile controls"></div>
+    </div>
+    <nav class="tab-bar" id="tabBar" aria-label="Sections"></nav>
+  </header>
 
-      <div class="divider"></div>
+  <!-- All tab panels live here. Only the cheatsheet panel is static; the
+       per-spawner log panels and the comparison table are built dynamically
+       and appended to this container by the JS modules. -->
+  <main class="app" id="panels">
 
-      <label class="toggle-line"><input type="checkbox" id="showBackground" checked> Background</label>
+    <!-- ===================== CHEATSHEET GENERATOR TAB ===================== -->
+    <!-- Exclusive to the three silverfish spawner spikes. Left: controls.
+         Right: live preview + download + optional wallpaper editor. -->
+    <section class="tab-panel" id="panel-cheatsheet">
+      <div class="cheatsheet-layout">
 
-      <div id="backgroundSettings" class="card">
-        <div class="row">
-          <label>Background Color <input type="color" id="bgColor" value="#ffffff"></label>
-          <label>Border Radius <input type="number" id="bgBorderRadius" value="0" min="0" max="100"></label>
-        </div>
-        <div class="row">
-          <label>Outline Color <input type="color" id="outlineColor" value="#7d7d7d"></label>
-          <label>Outline Width <input type="number" id="outlineWidth" value="6" min="0" max="20"></label>
-        </div>
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="card">
-        <div class="row">
-          <label>Pie Outline <input type="color" id="pieOutlineColor" value="#000000"></label>
-          <label>Pie Outline Width <input type="number" id="pieOutlineWidth" value="2" min="0" max="10"></label>
-        </div>
-        <div class="row">
-          <label>Text Size <input type="number" id="textSize" value="45" min="20" max="60"></label>
-          <label>Text Outline <input type="number" id="textOutlineWidth" value="2" min="0" max="10"></label>
-        </div>
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="card">
-        <div class="checks">
-          <label><span>Show Orange</span><input type="checkbox" id="showOrange" checked></label>
-          <label><span>Show Pink</span><input type="checkbox" id="showPink" checked></label>
-          <label><span>Show Green</span><input type="checkbox" id="showGreen" checked></label>
-        </div>
-      </div>
-    </section>
-
-    <section class="panel preview-panel">
-      <h2>Cheat Sheet Preview</h2>
-      <canvas id="mainCanvas" width="840" height="520"></canvas>
-
-      <div class="buttons">
-        <button class="btn btn-primary" onclick="download()">Download PNG</button>
-        <button class="btn btn-accent" id="toggleWallpaperBtn">Add Wallpaper</button>
-      </div>
-
-      <div id="wallpaperEditor">
-        <h3>Wallpaper Editor</h3>
-
-        <div class="wp-row">
-          <label>Background Type
-            <select id="wpBgType">
-              <option value="color">Color</option>
-              <option value="gradient">Gradient</option>
-              <option value="image">Image</option>
-            </select>
-          </label>
-        </div>
-
-        <div class="wp-row three wp-align-row" id="wpColorControls">
-          <label>Color <input type="color" id="wpBgColor" value="#000000"></label>
-          <div class="wp-spacer" aria-hidden="true"></div>
-          <div class="wp-spacer" aria-hidden="true"></div>
-        </div>
-
-        <div class="wp-grid" id="wpGradientControls" style="display:none;">
-          <div class="wp-grid-top">
-            <label>Color 1 <input type="color" id="wpGradientColor1" value="#000000"></label>
-            <label>Color 2 <input type="color" id="wpGradientColor2" value="#ffffff"></label>
+        <!-- Controls column -->
+        <section class="panel controls-panel">
+          <!-- One pie per silverfish spawner type. Orange + Green are entered
+               manually; the remaining slice (pink) is computed in code. -->
+          <div class="pie-grid">
+            <div class="card">
+              <h3>Only Spawner</h3>
+              <label>Orange <input type="number" id="orange_0" value="40" min="0" max="100"></label>
+              <label>Green <input type="number" id="green_0" value="35" min="0" max="100"></label>
+            </div>
+            <div class="card">
+              <h3>Chest in Front</h3>
+              <label>Orange <input type="number" id="orange_1" value="40" min="0" max="100"></label>
+              <label>Green <input type="number" id="green_1" value="35" min="0" max="100"></label>
+            </div>
+            <div class="card">
+              <h3>Chest Behind</h3>
+              <label>Orange <input type="number" id="orange_2" value="40" min="0" max="100"></label>
+              <label>Green <input type="number" id="green_2" value="35" min="0" max="100"></label>
+            </div>
           </div>
+
           <div class="divider"></div>
-          <div class="wp-grid-bottom">
-            <label>Rotation <input type="number" id="wpGradientRotation" value="0" min="0" max="360"></label>
-            <label>Offset <input type="number" id="wpGradientOffset" value="0" min="-1" max="1" step="0.01"></label>
-            <label>Softness <input type="number" id="wpFade" value="0.5" min="0" max="1" step="0.01"></label>
+
+          <!-- Background toggle + settings (drawn behind the template). -->
+          <label class="toggle-line"><input type="checkbox" id="showBackground" checked> Background</label>
+
+          <div id="backgroundSettings" class="card">
+            <div class="row">
+              <label>Background Color <input type="color" id="bgColor" value="#ffffff"></label>
+              <label>Border Radius <input type="number" id="bgBorderRadius" value="0" min="0" max="100"></label>
+            </div>
+            <div class="row">
+              <label>Outline Color <input type="color" id="outlineColor" value="#7d7d7d"></label>
+              <label>Outline Width <input type="number" id="outlineWidth" value="6" min="0" max="20"></label>
+            </div>
           </div>
-        </div>
 
-        <div class="wp-row three wp-align-row" id="wpImageControls" style="display:none;">
-          <label>Image <input type="file" id="wpBgImageInput" accept="image/*"></label>
-          <div class="wp-spacer" aria-hidden="true"></div>
-          <div class="wp-spacer" aria-hidden="true"></div>
-        </div>
-        <div class="divider"></div>
-        <div class="wp-row three">
-          <label>X <input type="number" id="wpX" value="200"></label>
-          <label>Y <input type="number" id="wpY" value="200"></label>
-          <label>Scale <input type="number" id="wpScale" value="1" step="0.01"></label>
-        </div>
+          <div class="divider"></div>
 
-        <label class="toggle-line wp-thin-toggle"><span>Thin Preview</span><input type="checkbox"
-            id="wpThinPreview"></label>
-        <canvas id="wallpaperCanvas" width="1920" height="1080"></canvas>
-        <div class="buttons"><button class="btn btn-primary" onclick="downloadWallpaper()">Download Wallpaper</button>
-        </div>
+          <!-- Pie outline + number-label styling. -->
+          <div class="card">
+            <div class="row">
+              <label>Pie Outline <input type="color" id="pieOutlineColor" value="#000000"></label>
+              <label>Pie Outline Width <input type="number" id="pieOutlineWidth" value="2" min="0" max="10"></label>
+            </div>
+            <div class="row">
+              <label>Text Size <input type="number" id="textSize" value="45" min="20" max="60"></label>
+              <label>Text Outline <input type="number" id="textOutlineWidth" value="2" min="0" max="10"></label>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Which slice numbers to print on the pies. -->
+          <div class="card">
+            <div class="checks">
+              <label><span>Show Orange</span><input type="checkbox" id="showOrange" checked></label>
+              <label><span>Show Pink</span><input type="checkbox" id="showPink" checked></label>
+              <label><span>Show Green</span><input type="checkbox" id="showGreen" checked></label>
+            </div>
+          </div>
+        </section>
+
+        <!-- Preview column -->
+        <section class="panel preview-panel">
+          <h2>Cheat Sheet Preview</h2>
+          <canvas id="mainCanvas" width="840" height="520"></canvas>
+
+          <div class="buttons">
+            <button class="btn btn-primary" id="downloadBtn">Download PNG</button>
+            <button class="btn btn-accent" id="toggleWallpaperBtn">Add Wallpaper</button>
+          </div>
+
+          <!-- Optional wallpaper editor (hidden until toggled). -->
+          <div id="wallpaperEditor">
+            <h3>Wallpaper Editor</h3>
+
+            <div class="wp-row">
+              <label>Background Type
+                <select id="wpBgType">
+                  <option value="color">Color</option>
+                  <option value="gradient">Gradient</option>
+                  <option value="image">Image</option>
+                </select>
+              </label>
+            </div>
+
+            <!-- Solid color background controls. -->
+            <div class="wp-row three wp-align-row" id="wpColorControls">
+              <label>Color <input type="color" id="wpBgColor" value="#000000"></label>
+              <div class="wp-spacer" aria-hidden="true"></div>
+              <div class="wp-spacer" aria-hidden="true"></div>
+            </div>
+
+            <!-- Gradient background controls. -->
+            <div class="wp-grid" id="wpGradientControls" style="display:none;">
+              <div class="wp-grid-top">
+                <label>Color 1 <input type="color" id="wpGradientColor1" value="#000000"></label>
+                <label>Color 2 <input type="color" id="wpGradientColor2" value="#ffffff"></label>
+              </div>
+              <div class="divider"></div>
+              <div class="wp-grid-bottom">
+                <label>Rotation <input type="number" id="wpGradientRotation" value="0" min="0" max="360"></label>
+                <label>Offset <input type="number" id="wpGradientOffset" value="0" min="-1" max="1" step="0.01"></label>
+                <label>Softness <input type="number" id="wpFade" value="0.5" min="0" max="1" step="0.01"></label>
+              </div>
+            </div>
+
+            <!-- Image background controls. -->
+            <div class="wp-row three wp-align-row" id="wpImageControls" style="display:none;">
+              <label>Image <input type="file" id="wpBgImageInput" accept="image/*"></label>
+              <div class="wp-spacer" aria-hidden="true"></div>
+              <div class="wp-spacer" aria-hidden="true"></div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Cheatsheet position + scale on the wallpaper. -->
+            <div class="wp-row three">
+              <label>X <input type="number" id="wpX" value="200"></label>
+              <label>Y <input type="number" id="wpY" value="200"></label>
+              <label>Scale <input type="number" id="wpScale" value="1" step="0.01"></label>
+            </div>
+
+            <label class="toggle-line wp-thin-toggle"><span>Thin Preview</span><input type="checkbox"
+                id="wpThinPreview"></label>
+            <canvas id="wallpaperCanvas" width="1920" height="1080"></canvas>
+            <div class="buttons">
+              <button class="btn btn-primary" id="downloadWallpaperBtn">Download Wallpaper</button>
+            </div>
+          </div>
+        </section>
       </div>
     </section>
-  </div>
+    <!-- Per-spawner log panels and the comparison panel are injected here. -->
 
-  <script src="script.js"></script>
+  </main>
+
+  <!-- Single ES-module entry point; it imports every other module. -->
+  <script type="module" src="js/main.js"></script>
 </body>
 
 </html>

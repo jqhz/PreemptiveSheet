@@ -37,18 +37,85 @@ body {
     linear-gradient(160deg, var(--bg1), var(--bg2));
 }
 
+/* App header: title row + tab bar. */
+.app-header {
+  width: min(1820px, 100%);
+  margin: 0 auto;
+  padding: 18px 18px 0;
+}
+
+/* Top row: title left, profile bar right. */
+.header-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.app-title {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.4vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+/* Tab bar: minimal pill buttons that wrap on small screens. */
+.tab-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-bottom: 1px solid var(--panel-border);
+  padding-bottom: 12px;
+}
+
+.tab-btn {
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background: rgba(32, 35, 41, 0.7);
+  color: var(--muted);
+  font-size: 0.98rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 140ms ease, background 140ms ease, border-color 140ms ease, transform 120ms ease;
+}
+
+.tab-btn:hover {
+  color: var(--text);
+  border-color: var(--field-border-hover);
+  transform: translateY(-1px);
+}
+
+.tab-btn.is-active {
+  color: #062018;
+  background: linear-gradient(135deg, var(--cherry-1), var(--cherry-2));
+  border-color: rgba(99, 230, 190, 0.7);
+  box-shadow: 0 8px 18px rgba(18, 184, 134, 0.32);
+}
+
+/* Panels container + show/hide of individual tab panels. */
 .app {
   width: min(1820px, 100%);
   margin: 0 auto;
   padding: 18px;
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.is-active {
+  display: block;
+}
+
+/* Two-column layout used inside the cheatsheet tab. */
+.cheatsheet-layout {
   display: grid;
   grid-template-columns: minmax(360px, 680px) minmax(560px, 1fr);
   gap: 16px;
-}
-
-.app.is-visual-only {
-  pointer-events: none;
-  user-select: none;
 }
 
 .panel {
@@ -504,7 +571,7 @@ input[type="checkbox"]:checked::after {
 }
 
 @media (max-width: 1400px) {
-  .app {
+  .cheatsheet-layout {
     grid-template-columns: 1fr;
   }
 }
@@ -552,4 +619,705 @@ input[type="checkbox"]:checked::after {
   .row > label:last-child {
     padding-left: 0;
   }
+}
+
+/* ============================ LOG TABS ============================ */
+/* Shared header for the spawner-log and comparison panels. */
+.log-header {
+  margin-bottom: 16px;
+}
+
+.log-header h2 {
+  text-align: left;
+  margin-bottom: 4px;
+}
+
+.log-sub {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* The four condition pies per spawner, in a responsive 2x2 grid. */
+.condition-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.condition-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(174, 183, 196, 0.26);
+  border-radius: 14px;
+  background: rgba(22, 25, 31, 0.58);
+  padding: 16px;
+}
+
+.condition-card h3 {
+  margin: 0;
+  text-align: center;
+}
+
+/* Live mini pie next to / above the inputs. */
+.mini-pie {
+  width: 120px;
+  height: 120px;
+}
+
+.mini-pie.small {
+  width: 84px;
+  height: 84px;
+}
+
+/* The orange/green inputs and pink readout under each mini pie. */
+.pie-inputs {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  max-width: 240px;
+}
+
+.pie-field {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+}
+
+.swatch-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* Small color chip identifying which pie slice a field controls. */
+.swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+}
+
+/* Read-only pink value (derived from orange + green). */
+.pie-field.readonly .pink-value {
+  justify-self: end;
+  min-width: 100px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ========================= COMPARISON TABLE ========================= */
+.table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.table-actions .btn {
+  height: 44px;
+  padding: 0 18px;
+}
+
+/* Hidden file input triggered by the Import button. */
+.visually-hidden-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Horizontal scroll wrapper so the table never breaks the layout. */
+.table-scroll {
+  overflow-x: auto;
+}
+
+.comparison-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 720px;
+}
+
+.comparison-table th,
+.comparison-table td {
+  border: 1px solid rgba(174, 183, 196, 0.22);
+  padding: 10px;
+  text-align: center;
+}
+
+.comparison-table thead th {
+  background: rgba(20, 23, 29, 0.6);
+  color: var(--text);
+  font-size: 0.92rem;
+}
+
+.comparison-table th.corner {
+  background: rgba(20, 23, 29, 0.6);
+}
+
+.comparison-table th.row-head {
+  background: rgba(20, 23, 29, 0.45);
+  color: var(--text);
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* Per-row variant toggle in the first column. */
+.row-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  min-height: 0;
+  color: inherit;
+}
+
+.row-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Compact orange/green numbers under each table mini pie (pink hidden). */
+.cell-values {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+/* ======================= VARIANT SECTIONS (LOG TABS) ======================= */
+/* Each spawner log panel is divided into three variant sections. */
+.variant-section {
+  margin-bottom: 20px;
+}
+
+.variant-title {
+  margin: 0 0 10px;
+  padding: 6px 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  background: rgba(99, 230, 190, 0.08);
+  border-left: 3px solid var(--cherry-1);
+  border-radius: 0 8px 8px 0;
+}
+
+/* ========================== COMPARISON TABLE ========================== */
+/* First-variant row of each spawner group gets extra top spacing so groups
+   are visually separated without a full horizontal rule. */
+.comparison-table tr.group-first td,
+.comparison-table tr.group-first th {
+  border-top: 2px solid rgba(99, 230, 190, 0.3);
+}
+
+/* Delta column header and cells get a distinct tint. */
+.comparison-table th.delta-th {
+  background: rgba(99, 230, 190, 0.06);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.comparison-table td.delta-td {
+  background: rgba(20, 23, 29, 0.55);
+}
+
+/* Delta inner layout: two rows (orange Δ and green Δ). */
+.delta-values {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.delta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.delta-val {
+  font-weight: 700;
+  font-size: 0.95rem;
+  min-width: 34px;
+  text-align: left;
+}
+
+/* Positive delta: slightly greener, negative: slightly reddish, zero: muted. */
+.delta-pos  { color: #6ee07a; }
+.delta-neg  { color: #f07070; }
+.delta-zero { color: var(--muted); }
+
+/* ======================== SPAWNER FILTER BAR ======================== */
+/* Row of checkboxes above the comparison table to show/hide spawner groups. */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(174, 183, 196, 0.2);
+  border-radius: 10px;
+  background: rgba(20, 23, 29, 0.42);
+}
+
+.filter-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-right: 4px;
+}
+
+.filter-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.9rem;
+  min-height: 0;
+}
+
+.filter-check input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+/* Compact reset button at the end of the filter bar. */
+.btn-show-all {
+  margin-left: auto;
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid rgba(99, 230, 190, 0.45);
+  border-radius: 8px;
+  background: rgba(99, 230, 190, 0.08);
+  color: var(--cherry-1);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+.btn-show-all:hover {
+  background: rgba(99, 230, 190, 0.18);
+  border-color: rgba(99, 230, 190, 0.75);
+}
+
+@media (max-width: 700px) {
+  .condition-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========================= PROFILE BAR (header) ========================= */
+
+.profile-bar {
+  margin-left: auto; /* push to the right of the title */
+}
+
+.profile-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.profile-bar-label {
+  color: var(--muted);
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+
+/* The dropdown that lists all profiles. */
+.profile-select {
+  height: 38px;
+  padding: 0 32px 0 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background: rgba(32, 35, 41, 0.9)
+    linear-gradient(45deg, transparent 50%, #e2e6ee 50%),
+    linear-gradient(135deg, #e2e6ee 50%, transparent 50%);
+  background-position: calc(100% - 12px) 15px, calc(100% - 6px) 15px;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 140ms ease;
+}
+
+.profile-select:hover { border-color: var(--field-border-hover); }
+.profile-select:focus  { outline: none; border-color: #e0e5ed; box-shadow: 0 0 0 3px rgba(224,229,237,0.3); }
+
+/* Compact action buttons in the profile bar. */
+.btn-profile-action {
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background: rgba(32, 35, 41, 0.85);
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 140ms ease, border-color 140ms ease, background 140ms ease;
+}
+
+.btn-profile-action:hover {
+  color: var(--text);
+  border-color: var(--field-border-hover);
+  background: rgba(50, 55, 65, 0.9);
+}
+
+/* GPU colour dot — shown beside the profile name when a GPU is set. */
+.gpu-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* ====================== PROFILE BADGE (Comparison tab) ====================== */
+
+.profile-badge-slot {
+  margin-bottom: 12px;
+}
+
+.profile-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border: 1px solid rgba(174, 183, 196, 0.2);
+  border-radius: 20px;
+  background: rgba(20, 23, 29, 0.5);
+  font-size: 0.88rem;
+}
+
+.badge-label {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.badge-dot {
+  width: 10px;
+  height: 10px;
+}
+
+.badge-name {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.badge-gpu {
+  color: var(--muted);
+}
+
+/* ========================== MODAL SYSTEM ========================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 10, 14, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  backdrop-filter: blur(2px);
+}
+
+.modal-dialog {
+  width: min(500px, 100%);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  background: #1c1f26;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.modal-close:hover { background: rgba(174, 183, 196, 0.12); color: var(--text); }
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  max-height: 70vh;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px 16px;
+  border-top: 1px solid var(--panel-border);
+}
+
+/* Form layout inside modals. */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-field {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 0.95rem;
+  min-height: 0;
+}
+
+.modal-field input[type="text"],
+.modal-field select,
+.gpu-select {
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid rgba(174, 183, 196, 0.5);
+  border-radius: 10px;
+  background: rgba(47, 52, 61, 0.96);
+  color: var(--text);
+  font-size: 0.95rem;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.modal-field input[type="text"]:focus,
+.modal-field select:focus,
+.gpu-select:focus {
+  outline: none;
+  border-color: #e0e5ed;
+  box-shadow: 0 0 0 3px rgba(224, 229, 237, 0.25);
+}
+
+.modal-hint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.modal-hint-error { color: #f07070; }
+
+/* Ghost button for Cancel actions in modals. */
+.btn-ghost {
+  height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 140ms ease, border-color 140ms ease;
+}
+
+.btn-ghost:hover { color: var(--text); border-color: var(--field-border-hover); }
+
+/* ====================== MANAGE PROFILES MODAL ====================== */
+
+.manage-add {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.manage-add h4 {
+  margin: 0 0 4px;
+  font-size: 0.92rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.manage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.manage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(174, 183, 196, 0.16);
+  border-radius: 10px;
+  background: rgba(20, 23, 29, 0.5);
+  flex-wrap: wrap;
+}
+
+.manage-row-active {
+  border-color: rgba(99, 230, 190, 0.35);
+  background: rgba(99, 230, 190, 0.05);
+}
+
+.manage-row-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.active-badge {
+  padding: 1px 7px;
+  border-radius: 10px;
+  background: rgba(99, 230, 190, 0.18);
+  color: var(--cherry-1);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.manage-row-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-manage-action {
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid rgba(174, 183, 196, 0.3);
+  border-radius: 8px;
+  background: rgba(47, 52, 61, 0.8);
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 140ms ease, border-color 140ms ease;
+}
+
+.btn-manage-action:hover:not(:disabled) { color: var(--text); border-color: var(--field-border-hover); }
+.btn-manage-action:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.btn-manage-delete { color: #f07070; border-color: rgba(240, 112, 112, 0.3); }
+.btn-manage-delete:hover { color: #ff9090; border-color: rgba(240, 112, 112, 0.6); }
+
+/* Inline edit/delete row that replaces a manage-row's content. */
+.manage-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.manage-inline input[type="text"] {
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid rgba(174, 183, 196, 0.5);
+  border-radius: 8px;
+  background: rgba(47, 52, 61, 0.96);
+  color: var(--text);
+  font-size: 0.9rem;
+  flex: 1;
+  min-width: 100px;
+}
+
+.delete-confirm-msg { color: #f07070; font-weight: 600; }
+
+/* GPU select in manage-add / modal-field (standalone use). */
+.gpu-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 32px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #e2e6ee 50%),
+    linear-gradient(135deg, #e2e6ee 50%, transparent 50%);
+  background-position: calc(100% - 12px) 16px, calc(100% - 6px) 16px;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  background-color: rgba(47, 52, 61, 0.96);
+}
+
+/* ========================== IMPORT SUCCESS TOAST ========================== */
+
+.profile-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  padding: 10px 22px;
+  border-radius: 10px;
+  background: rgba(32, 35, 41, 0.96);
+  border: 1px solid rgba(99, 230, 190, 0.4);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1100;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.profile-toast-show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ========================= RESPONSIVE ========================= */
+
+@media (max-width: 700px) {
+  .header-top { flex-direction: column; align-items: flex-start; }
+  .profile-bar { margin-left: 0; }
+  .modal-field { grid-template-columns: 1fr; }
 }
