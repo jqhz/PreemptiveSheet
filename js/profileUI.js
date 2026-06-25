@@ -147,6 +147,7 @@ function openSaveModal() {
     }
     saveProfileMeta(oldName, newName, newGpu);
     closeModal();
+    showProfileToast({ name: newName });
   });
 
   const cancelBtn = el("button", { className: "btn btn-ghost", text: "Cancel" });
@@ -219,7 +220,11 @@ function triggerImport() {
         showConflictModal(existingName)
       );
       if (result.status !== "cancelled") {
-        showImportSuccessToast(result);
+        showProfileToast({
+          name: result.name,
+          fromFile: file.name,
+          overwritten: result.status === "overwritten",
+        });
       }
     } catch {
       alert("Could not import that file. Make sure it is a valid exported profile.");
@@ -236,7 +241,7 @@ function showConflictModal(existingName) {
     });
 
     const overwriteBtn = el("button", { className: "btn btn-primary", text: "Overwrite" });
-    const renameBtn    = el("button", { className: "btn btn-accent",  text: `Rename to ${existingName}_2` });
+    const renameBtn    = el("button", { className: "btn btn-secondary", text: `Rename to ${existingName}_2` });
     const cancelBtn    = el("button", { className: "btn btn-ghost",   text: "Cancel" });
 
     overwriteBtn.addEventListener("click", () => { closeModal(); resolve("overwrite"); });
@@ -251,17 +256,32 @@ function showConflictModal(existingName) {
   });
 }
 
-function showImportSuccessToast({ status, name }) {
-  const msg = status === "overwritten"
-    ? `Profile "${name}" overwritten.`
-    : `Profile "${name}" imported.`;
-  const toast = el("div", { className: "profile-toast", text: msg });
+const TOAST_VISIBLE_MS = 2800;
+
+function showProfileToast({ name, fromFile, overwritten = false }) {
+  document.querySelector(".profile-toast")?.remove();
+
+  const parts = [];
+  parts.push(document.createTextNode("Saved to "));
+  parts.push(el("code", { className: "profile-toast-name", text: name }));
+  if (fromFile) {
+    parts.push(document.createTextNode(` from ${fromFile}`));
+  }
+  if (overwritten) {
+    parts.push(document.createTextNode(" (replaced existing)"));
+  }
+
+  const toast = el("div", {
+    className: "profile-toast profile-toast-success",
+    attrs: { role: "status", "aria-live": "polite" },
+    children: parts,
+  });
   document.body.appendChild(toast);
-  setTimeout(() => toast.classList.add("profile-toast-show"), 10);
+  requestAnimationFrame(() => toast.classList.add("profile-toast-show"));
   setTimeout(() => {
     toast.classList.remove("profile-toast-show");
     setTimeout(() => toast.remove(), 300);
-  }, 2800);
+  }, TOAST_VISIBLE_MS);
 }
 
 // ─── Manage Profiles modal ────────────────────────────────────────────────────

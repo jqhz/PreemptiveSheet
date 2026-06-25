@@ -45,8 +45,8 @@ export function initTable(panelsContainer, { onExportClick, onImportClick } = {}
   panel.appendChild(badgeEl);
 
   // Export / Import buttons delegate to profileUI via injected callbacks.
-  const exportBtn = el("button", { className: "btn btn-primary", text: "Export JSON" });
-  const importBtn = el("button", { className: "btn btn-accent",  text: "Import JSON" });
+  const exportBtn = el("button", { className: "btn btn-primary", text: "Export JSON", attrs: { type: "button" } });
+  const importBtn = el("button", { className: "btn btn-secondary", text: "Import JSON", attrs: { type: "button" } });
   exportBtn.addEventListener("click", () => onExportClick?.());
   importBtn.addEventListener("click", () => onImportClick?.());
 
@@ -100,7 +100,7 @@ export function initTable(panelsContainer, { onExportClick, onImportClick } = {}
   // Show All: recheck every spawner and every variant row checkbox, then
   // update visibility. Useful when all variants of a spawner are unchecked
   // and there's no row checkbox left to click.
-  const showAllBtn = el("button", { className: "btn-show-all", text: "Show All" });
+  const showAllBtn = el("button", { className: "btn-show-all", text: "Show All", attrs: { type: "button" } });
   showAllBtn.addEventListener("click", () => {
     for (const spawner of SPAWNERS) {
       spawnerVisible.set(spawner.id, true);
