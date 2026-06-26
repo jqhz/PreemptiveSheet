@@ -303,17 +303,22 @@ function showConflictModal(existingName) {
 
 const TOAST_VISIBLE_MS = 2800;
 
-function showProfileToast({ name, fromFile, overwritten = false }) {
+function showProfileToast({ name, fromFile, overwritten = false, created = false }) {
   document.querySelector(".profile-toast")?.remove();
 
   const parts = [];
-  parts.push(document.createTextNode("Saved to "));
-  parts.push(el("code", { className: "profile-toast-name", text: name }));
-  if (fromFile) {
-    parts.push(document.createTextNode(` from ${fromFile}`));
-  }
-  if (overwritten) {
-    parts.push(document.createTextNode(" (replaced existing)"));
+  if (created) {
+    parts.push(document.createTextNode("Created profile "));
+    parts.push(el("code", { className: "profile-toast-name", text: name }));
+  } else {
+    parts.push(document.createTextNode("Saved to "));
+    parts.push(el("code", { className: "profile-toast-name", text: name }));
+    if (fromFile) {
+      parts.push(document.createTextNode(` from ${fromFile}`));
+    }
+    if (overwritten) {
+      parts.push(document.createTextNode(" (replaced existing)"));
+    }
   }
 
   const toast = el("div", {
@@ -364,6 +369,7 @@ function buildAddSection(listEl) {
       return;
     }
     nameInput.value = "";
+    showProfileToast({ name, created: true });
   });
 
   return el("div", {
@@ -393,6 +399,13 @@ function rebuildManageList(listEl) {
     const dot = gpu
       ? el("span", { className: "gpu-dot", attrs: { style: `background:${gpu.color}`, title: gpu.label } })
       : null;
+    const namePart = el("span", {
+      className: "manage-row-name",
+      children: [dot, el("span", { text: name })].filter(Boolean),
+    });
+    if (isActive) {
+      namePart.appendChild(el("span", { className: "active-badge", text: "active" }));
+    }
     const nameBlock = el("div", { className: "manage-row-info", children: [namePart] });
     const hardwareLine = formatHardwareLine(profile);
     if (hardwareLine) {
@@ -527,11 +540,10 @@ function showInlineDelete(row, name) {
 // ─── Profile bar (header) ─────────────────────────────────────────────────────
 
 function buildProfileBar(container) {
-  const gpuDot       = el("span", { className: "gpu-dot", attrs: { id: "activeGpuDot" } });
-  const hardwareEl   = el("span", { className: "profile-bar-hardware", attrs: { id: "activeProfileHardware" } });
-  const select       = el("select", { className: "profile-select", attrs: { id: "profileSelect", "aria-label": "Active profile" } });
-  const saveBtn      = el("button", { className: "btn-profile-action", text: "Save",   attrs: { type: "button" } });
-  const manageBtn    = el("button", { className: "btn-profile-action", text: "Manage", attrs: { type: "button" } });
+  const gpuDot     = el("span", { className: "gpu-dot", attrs: { id: "activeGpuDot" } });
+  const select     = el("select", { className: "profile-select", attrs: { id: "profileSelect", "aria-label": "Active profile" } });
+  const saveBtn    = el("button", { className: "btn-profile-action", text: "Save",   attrs: { type: "button" } });
+  const manageBtn  = el("button", { className: "btn-profile-action", text: "Manage", attrs: { type: "button" } });
 
   select.addEventListener("change", () => switchProfile(select.value));
   saveBtn.addEventListener("click",   openSaveModal);
@@ -544,7 +556,6 @@ function buildProfileBar(container) {
         el("span", { className: "profile-bar-label", text: "Profile:" }),
         gpuDot,
         select,
-        hardwareEl,
         saveBtn,
         manageBtn,
       ],
@@ -573,10 +584,6 @@ function buildProfileBar(container) {
     } else {
       gpuDot.style.display = "none";
     }
-
-    const hardwareLine = formatHardwareLine(profile);
-    hardwareEl.textContent = hardwareLine;
-    hardwareEl.style.display = hardwareLine ? "" : "none";
   }
 
   update();
