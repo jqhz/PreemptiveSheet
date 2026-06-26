@@ -1531,6 +1531,16 @@ input[type="checkbox"]:checked::after {
   min-width: 100px;
 }
 
+.manage-inline-edit .gpu-select {
+  height: 32px;
+  min-width: 140px;
+  flex: 0 1 auto;
+}
+
+.manage-inline-edit .modal-hint {
+  flex-basis: 100%;
+}
+
 .delete-confirm-msg {
   color: var(--error);
   font-weight: var(--weight-medium);

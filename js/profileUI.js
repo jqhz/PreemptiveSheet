@@ -5,7 +5,7 @@
 //   • Save Profile modal — set/rename profile + pick GPU, saves to localStorage.
 //   • Export Profile modal — same fields, but also downloads <name>.json.
 //   • Import handler — file picker → conflict modal if name already exists.
-//   • Manage Profiles modal — full list with New / Rename / Duplicate / Delete.
+//   • Manage Profiles modal — full list with New / Edit / Duplicate / Delete.
 //   • Profile badge — a live element for the Comparison tab showing active
 //     profile name + GPU dot.
 //
@@ -16,7 +16,7 @@ import {
   GPU_TYPES, isValidName, gpuById,
   getActiveId, getActiveProfile, getAllProfiles,
   switchProfile, createProfile, deleteProfile,
-  renameProfile, saveProfileMeta, duplicateProfile,
+  saveProfileMeta, duplicateProfile,
   exportActiveToFile, importFromFile,
   subscribeProfiles, subscribeData,
 } from "./profiles.js";
@@ -358,9 +358,9 @@ function rebuildManageList(listEl) {
     // Action buttons
     const actions = el("div", { className: "manage-row-actions" });
 
-    // Rename (inline edit)
-    const renameBtn = el("button", { className: "btn-manage-action", text: "Rename" });
-    renameBtn.addEventListener("click", () => showInlineRename(row, name));
+    // Edit (inline name + GPU)
+    const editBtn = el("button", { className: "btn-manage-action", text: "Edit" });
+    editBtn.addEventListener("click", () => showInlineEdit(row, name, profile.gpu ?? null));
 
     // Duplicate
     const dupBtn = el("button", { className: "btn-manage-action", text: "Duplicate" });
@@ -374,7 +374,7 @@ function rebuildManageList(listEl) {
     });
     deleteBtn.addEventListener("click", () => showInlineDelete(row, name));
 
-    actions.appendChild(renameBtn);
+    actions.appendChild(editBtn);
     actions.appendChild(dupBtn);
     actions.appendChild(deleteBtn);
     row.appendChild(actions);
@@ -382,28 +382,46 @@ function rebuildManageList(listEl) {
   }
 }
 
-// Inline rename: replaces the name span with an input + save/cancel.
-function showInlineRename(row, oldName) {
-  const originalContent = row.innerHTML;
+// Inline edit: name + GPU.
+function showInlineEdit(row, oldName, oldGpu) {
   row.innerHTML = "";
 
   const { input, hint, validate } = buildNameInput(oldName);
-  const saveBtn   = el("button", { className: "btn-manage-action", text: "Save" });
-  const cancelBtn = el("button", { className: "btn-manage-action", text: "Cancel" });
+  const gpuSelect = buildGpuSelect(oldGpu);
+  const saveBtn   = el("button", { className: "btn-manage-action", text: "Save", attrs: { type: "button" } });
+  const cancelBtn = el("button", { className: "btn-manage-action", text: "Cancel", attrs: { type: "button" } });
 
   saveBtn.addEventListener("click", () => {
     if (!validate()) return;
     const newName = input.value.trim();
-    if (newName === oldName) { row.innerHTML = originalContent; rebuildManageList(row.parentElement); return; }
-    if (!renameProfile(oldName, newName)) {
+    const newGpu  = gpuSelect.value || null;
+
+    if (newName === oldName && newGpu === oldGpu) {
+      rebuildManageList(row.parentElement);
+      return;
+    }
+
+    const existing = getAllProfiles();
+    if (newName !== oldName && existing[newName]) {
       hint.textContent = `\u26A0 "${newName}" is already taken.`;
       hint.classList.add("modal-hint-error");
+      return;
     }
-    // subscribeProfiles fires → rebuildManageList() called automatically
+
+    if (!saveProfileMeta(oldName, newName, newGpu)) {
+      hint.textContent = `\u26A0 Could not save changes.`;
+      hint.classList.add("modal-hint-error");
+      return;
+    }
+
+    showProfileToast({ name: newName });
   });
   cancelBtn.addEventListener("click", () => rebuildManageList(row.parentElement));
 
-  row.appendChild(el("div", { className: "manage-inline", children: [input, hint, saveBtn, cancelBtn] }));
+  row.appendChild(el("div", {
+    className: "manage-inline manage-inline-edit",
+    children: [input, gpuSelect, hint, saveBtn, cancelBtn],
+  }));
 }
 
 // Inline duplicate: shows a name input for the copy.

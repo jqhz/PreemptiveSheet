@@ -18,6 +18,10 @@ const STORAGE_KEY = "preemptive.profiles.v1";
 
 // GPU options. `color` is used for the dot in the UI.
 export const GPU_TYPES = [
+  /*{ id: "nvidia",  label: "NVidia",   color: "#d4edbc" },
+  { id: "amd",     label: "AMD",      color: "#ffcfc9" },
+  { id: "intel",   label: "Intel",    color: "#bfe1f6" },
+  { id: "mseries", label: "M-series", color: "#e6cff2" },*/
   { id: "nvidia",  label: "NVidia",   color: "#76b900" },
   { id: "amd",     label: "AMD",      color: "#ed1c24" },
   { id: "intel",   label: "Intel",    color: "#0071c5" },
@@ -181,16 +185,14 @@ export function renameProfile(oldName, newName) {
   return true;
 }
 
-// Save profile metadata (name + GPU) from the Save modal. Handles rename if
-// the name changed.
+// Save profile metadata (name + GPU). Handles rename if the name changed.
+// Works for any profile, not only the active one.
 export function saveProfileMeta(oldName, newName, gpu) {
   if (newName !== oldName) {
     if (!renameProfile(oldName, newName)) return false;
-    // renameProfile already persisted + notified
   }
-  // Update GPU on the (possibly renamed) profile.
-  if (store.profiles[store.activeId]) {
-    store.profiles[store.activeId].gpu = gpu ?? null;
+  if (store.profiles[newName]) {
+    store.profiles[newName].gpu = gpu ?? null;
     persist();
     notifyProfiles();
   }
