@@ -39,64 +39,72 @@
 
         <!-- Controls column -->
         <section class="panel controls-panel">
-          <!-- One pie per silverfish spawner type. Orange + Green are entered
-               manually; the remaining slice (pink) is computed in code. -->
-          <div class="pie-grid">
-            <div class="card">
-              <h3>Only Spawner</h3>
-              <label>Orange <input type="number" id="orange_0" value="40" min="0" max="100"></label>
-              <label>Green <input type="number" id="green_0" value="35" min="0" max="100"></label>
-            </div>
-            <div class="card">
-              <h3>Chest in Front</h3>
-              <label>Orange <input type="number" id="orange_1" value="40" min="0" max="100"></label>
-              <label>Green <input type="number" id="green_1" value="35" min="0" max="100"></label>
-            </div>
-            <div class="card">
-              <h3>Chest Behind</h3>
-              <label>Orange <input type="number" id="orange_2" value="40" min="0" max="100"></label>
-              <label>Green <input type="number" id="green_2" value="35" min="0" max="100"></label>
-            </div>
-          </div>
+          <nav class="controls-subtabs" id="controlsSubtabs" aria-label="Cheat sheet settings">
+            <button type="button" class="controls-subtab is-active" data-subtab="values">Values</button>
+            <button type="button" class="controls-subtab" data-subtab="background">Background</button>
+            <button type="button" class="controls-subtab" data-subtab="style">Style</button>
+          </nav>
 
-          <div class="divider"></div>
-
-          <!-- Background toggle + settings (drawn behind the template). -->
-          <label class="toggle-line"><input type="checkbox" id="showBackground" checked> Background</label>
-
-          <div id="backgroundSettings" class="card">
-            <div class="row">
-              <label>Background Color <input type="color" id="bgColor" value="#ffffff"></label>
-              <label>Border Radius <input type="number" id="bgBorderRadius" value="0" min="0" max="100"></label>
+          <div class="controls-subpanels">
+            <!-- Spawner pie values -->
+            <div class="controls-subpanel is-active" id="subpanel-values">
+              <p class="controls-subpanel-desc">Set orange and green for each silverfish spawner. Pink is calculated automatically.</p>
+              <div class="pie-grid">
+                <div class="card">
+                  <h3>Only Spawner</h3>
+                  <label>Orange <input type="number" id="orange_0" value="40" min="0" max="100"></label>
+                  <label>Green <input type="number" id="green_0" value="35" min="0" max="100"></label>
+                </div>
+                <div class="card">
+                  <h3>Chest in Front</h3>
+                  <label>Orange <input type="number" id="orange_1" value="40" min="0" max="100"></label>
+                  <label>Green <input type="number" id="green_1" value="35" min="0" max="100"></label>
+                </div>
+                <div class="card">
+                  <h3>Chest Behind</h3>
+                  <label>Orange <input type="number" id="orange_2" value="40" min="0" max="100"></label>
+                  <label>Green <input type="number" id="green_2" value="35" min="0" max="100"></label>
+                </div>
+              </div>
             </div>
-            <div class="row">
-              <label>Outline Color <input type="color" id="outlineColor" value="#7d7d7d"></label>
-              <label>Outline Width <input type="number" id="outlineWidth" value="6" min="0" max="20"></label>
+
+            <!-- Background frame behind the template -->
+            <div class="controls-subpanel" id="subpanel-background">
+              <p class="controls-subpanel-desc">Optional frame drawn behind the cheat sheet image.</p>
+              <label class="toggle-line"><input type="checkbox" id="showBackground" checked> Enable background</label>
+              <div id="backgroundSettings" class="card">
+                <div class="row">
+                  <label>Background Color <input type="color" id="bgColor" value="#ffffff"></label>
+                  <label>Border Radius <input type="number" id="bgBorderRadius" value="0" min="0" max="100"></label>
+                </div>
+                <div class="row">
+                  <label>Outline Color <input type="color" id="outlineColor" value="#7d7d7d"></label>
+                  <label>Outline Width <input type="number" id="outlineWidth" value="6" min="0" max="20"></label>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div class="divider"></div>
-
-          <!-- Pie outline + number-label styling. -->
-          <div class="card">
-            <div class="row">
-              <label>Pie Outline <input type="color" id="pieOutlineColor" value="#000000"></label>
-              <label>Pie Outline Width <input type="number" id="pieOutlineWidth" value="2" min="0" max="10"></label>
-            </div>
-            <div class="row">
-              <label>Text Size <input type="number" id="textSize" value="45" min="20" max="60"></label>
-              <label>Text Outline <input type="number" id="textOutlineWidth" value="2" min="0" max="10"></label>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
-          <!-- Which slice numbers to print on the pies. -->
-          <div class="card">
-            <div class="checks">
-              <label><span>Show Orange</span><input type="checkbox" id="showOrange" checked></label>
-              <label><span>Show Pink</span><input type="checkbox" id="showPink" checked></label>
-              <label><span>Show Green</span><input type="checkbox" id="showGreen" checked></label>
+            <!-- Pie outline, labels, and visibility -->
+            <div class="controls-subpanel" id="subpanel-style">
+              <p class="controls-subpanel-desc">Customize pie outlines, number labels, and which slices are shown.</p>
+              <div class="card">
+                <div class="row">
+                  <label>Pie Outline <input type="color" id="pieOutlineColor" value="#000000"></label>
+                  <label>Pie Outline Width <input type="number" id="pieOutlineWidth" value="2" min="0" max="10"></label>
+                </div>
+                <div class="row">
+                  <label>Text Size <input type="number" id="textSize" value="45" min="20" max="60"></label>
+                  <label>Text Outline <input type="number" id="textOutlineWidth" value="2" min="0" max="10"></label>
+                </div>
+              </div>
+              <div class="card">
+                <h3>Visible Slices</h3>
+                <div class="checks">
+                  <label><span>Show Orange</span><input type="checkbox" id="showOrange" checked></label>
+                  <label><span>Show Pink</span><input type="checkbox" id="showPink" checked></label>
+                  <label><span>Show Green</span><input type="checkbox" id="showGreen" checked></label>
+                </div>
+              </div>
             </div>
           </div>
         </section>

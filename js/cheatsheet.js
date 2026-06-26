@@ -157,6 +157,7 @@ export function initCheatsheet() {
 
   syncBackgroundSettings();
   keepTextSizeInBounds();
+  initControlsSubtabs();
 
   // Draw once now, and again once the template image and fonts are ready.
   draw();
@@ -177,4 +178,22 @@ export function initCheatsheet() {
       return () => redrawListeners.delete(fn);
     },
   };
+}
+
+// Left-panel sub-tabs: Values / Background / Style (presentation only).
+function initControlsSubtabs() {
+  const bar = byId("controlsSubtabs");
+  if (!bar) return;
+
+  const buttons = bar.querySelectorAll(".controls-subtab");
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.subtab;
+      if (!id) return;
+      buttons.forEach((b) => b.classList.toggle("is-active", b === btn));
+      document.querySelectorAll(".controls-subpanel").forEach((panel) => {
+        panel.classList.toggle("is-active", panel.id === `subpanel-${id}`);
+      });
+    });
+  });
 }

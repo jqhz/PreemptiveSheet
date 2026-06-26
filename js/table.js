@@ -235,28 +235,52 @@ function buildTable(cells, deltaCells, rowRefs, variantVisible, applyRowVisibili
       variantVisible.set(rowKey, true);
 
       const rowCheckbox = el("input", {
-        attrs: { type: "checkbox", "aria-label": `Show ${spawner.label} ${variant.label}` },
+        attrs: {
+          type: "checkbox",
+          id: `row-toggle-${spawner.id}-${variant.id}`,
+          "aria-label": `Show ${spawner.label} ${variant.label}`,
+        },
       });
       rowCheckbox.checked = true;
-      rowCheckbox.addEventListener("change", () => {
+
+      const updateRowVisibility = () => {
         variantVisible.set(rowKey, rowCheckbox.checked);
         applyRowVisibility(rowKey);
-      });
+      };
+
+      rowCheckbox.addEventListener("change", updateRowVisibility);
 
       const rowHeadText = `${spawner.label} \u2013 ${variant.label}`;
-      const row = el("tr", {
-        className: variantIdx === 0 ? "group-first" : "",
+      const rowHeadCell = el("th", {
+        className: "row-head",
+        attrs: { tabindex: "0" },
         children: [
-          el("th", {
-            className: "row-head",
-            children: [
-              el("label", {
-                className: "row-toggle",
-                children: [rowCheckbox, el("span", { text: rowHeadText })],
-              }),
-            ],
+          el("label", {
+            className: "row-toggle",
+            attrs: { for: `row-toggle-${spawner.id}-${variant.id}` },
+            children: [rowCheckbox, el("span", { text: rowHeadText })],
           }),
         ],
+      });
+
+      rowHeadCell.addEventListener("click", (event) => {
+        event.preventDefault();
+        if (event.target.closest("input")) return;
+        rowCheckbox.checked = !rowCheckbox.checked;
+        updateRowVisibility();
+      });
+
+      rowHeadCell.addEventListener("keydown", (event) => {
+        if (event.key === " " || event.key === "Enter") {
+          event.preventDefault();
+          rowCheckbox.checked = !rowCheckbox.checked;
+          updateRowVisibility();
+        }
+      });
+
+      const row = el("tr", {
+        className: variantIdx === 0 ? "group-first" : "",
+        children: [rowHeadCell],
       });
 
       rowRefs.set(rowKey, { row, checkbox: rowCheckbox });
