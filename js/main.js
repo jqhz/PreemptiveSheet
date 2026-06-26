@@ -13,7 +13,7 @@
 import { SPAWNERS } from "./constants.js";
 import { byId, clampNumberInputToBounds } from "./utils.js";
 import { initTabs } from "./tabs.js";
-import { initCheatsheet } from "./cheatsheet.js";
+import { initCheatsheet, initControlsSubtabs } from "./cheatsheet.js";
 import { initWallpaper } from "./wallpaper.js";
 import { initLog } from "./log.js";
 import { initTable } from "./table.js";
@@ -46,6 +46,9 @@ function init() {
     { id: "comparison", label: "Comparison" },
   ];
   initTabs(byId("tabBar"), tabs);
+
+  // Sub-tabs are independent of canvas setup — init first so they work even if draw fails.
+  initControlsSubtabs();
 
   // Cheatsheet generator + wallpaper editor (static; not profile-aware).
   const cheatsheet = initCheatsheet();

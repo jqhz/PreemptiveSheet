@@ -346,12 +346,16 @@ p {
   box-shadow: var(--shadow-sm);
 }
 
-.controls-subpanel {
+.controls-subpanels > .controls-subpanel {
   display: none;
 }
 
-.controls-subpanel.is-active {
+.controls-subpanels > .controls-subpanel.is-active {
   display: block;
+}
+
+.controls-subpanel[hidden] {
+  display: none !important;
 }
 
 .controls-subpanel-desc {

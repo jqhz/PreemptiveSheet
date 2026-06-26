@@ -10,7 +10,14 @@
   <link rel="icon" type="image/png" sizes="16x16" href="favicon_io/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="favicon_io/apple-touch-icon.png">
   <link rel="manifest" href="favicon_io/site.webmanifest">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
+  <!-- Critical: sub-panel visibility must work even if cached CSS is stale -->
+  <style>
+    .controls-subpanels > .controls-subpanel:not(.is-active),
+    .controls-subpanel[hidden] {
+      display: none !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -69,7 +76,7 @@
             </div>
 
             <!-- Background frame behind the template -->
-            <div class="controls-subpanel" id="subpanel-background">
+            <div class="controls-subpanel" id="subpanel-background" hidden>
               <p class="controls-subpanel-desc">Optional frame drawn behind the cheat sheet image.</p>
               <label class="toggle-line"><input type="checkbox" id="showBackground" checked> Enable background</label>
               <div id="backgroundSettings" class="card">
@@ -85,7 +92,7 @@
             </div>
 
             <!-- Pie outline, labels, and visibility -->
-            <div class="controls-subpanel" id="subpanel-style">
+            <div class="controls-subpanel" id="subpanel-style" hidden>
               <p class="controls-subpanel-desc">Customize pie outlines, number labels, and which slices are shown.</p>
               <div class="card">
                 <div class="row">
@@ -185,7 +192,7 @@
   </main>
 
   <!-- Single ES-module entry point; it imports every other module. -->
-  <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/main.js?v=3"></script>
 </body>
 
 </html>
