@@ -13,7 +13,7 @@
 //   initProfileUI(headerEl)  → { openExportModal, triggerImport, attachBadge }
 
 import {
-  GPU_TYPES, isValidName, gpuById,
+  GPU_TYPES, isValidName, gpuById, HARDWARE_TEXT_MAX,
   getActiveId, getActiveProfile, getAllProfiles,
   switchProfile, createProfile, deleteProfile,
   saveProfileMeta, duplicateProfile,
@@ -98,7 +98,7 @@ function buildNameInput(initialValue) {
 
 function buildGpuSelect(initialGpu) {
   const select = el("select", { className: "gpu-select" });
-  const noneOpt = el("option", { attrs: { value: "" }, text: "— No GPU set —" });
+  const noneOpt = el("option", { attrs: { value: "" }, text: "— No type set —" });
   select.appendChild(noneOpt);
   for (const g of GPU_TYPES) {
     const opt = el("option", { attrs: { value: g.id }, text: g.label });
@@ -106,6 +106,51 @@ function buildGpuSelect(initialGpu) {
     select.appendChild(opt);
   }
   return select;
+}
+
+function buildHardwareInput(placeholder, initialValue) {
+  return el("input", {
+    attrs: {
+      type: "text",
+      maxlength: String(HARDWARE_TEXT_MAX),
+      placeholder,
+      value: initialValue ?? "",
+    },
+  });
+}
+
+function readProfileMetaFromForm(gpuSelect, gpuModelInput, cpuInput) {
+  return {
+    gpu: gpuSelect.value || null,
+    gpuModel: gpuModelInput.value.trim(),
+    cpu: cpuInput.value.trim(),
+  };
+}
+
+function buildProfileMetaFields(profile = {}) {
+  const gpuSelect = buildGpuSelect(profile.gpu ?? "");
+  const gpuModelInput = buildHardwareInput("e.g. RTX 4090", profile.gpuModel ?? "");
+  const cpuInput = buildHardwareInput("e.g. Ryzen 7 5800X", profile.cpu ?? "");
+  const fields = [
+    buildFormRow("GPU Type", gpuSelect),
+    buildFormRow("GPU", gpuModelInput),
+    buildFormRow("CPU", cpuInput),
+  ];
+  const readMeta = () => readProfileMetaFromForm(gpuSelect, gpuModelInput, cpuInput);
+  return { gpuSelect, gpuModelInput, cpuInput, fields, readMeta };
+}
+
+function profileMetaEquals(a, b) {
+  return (a.gpu ?? null) === (b.gpu ?? null)
+    && (a.gpuModel ?? "") === (b.gpuModel ?? "")
+    && (a.cpu ?? "") === (b.cpu ?? "");
+}
+
+function formatHardwareLine(profile) {
+  const parts = [];
+  if (profile?.gpuModel) parts.push(profile.gpuModel);
+  if (profile?.cpu) parts.push(profile.cpu);
+  return parts.join(" · ");
 }
 
 function buildFormRow(labelText, inputEl) {
@@ -123,14 +168,14 @@ function openSaveModal() {
   const oldName = getActiveId();
 
   const { input: nameInput, hint, validate } = buildNameInput(active?.name ?? oldName);
-  const gpuSelect = buildGpuSelect(active?.gpu ?? "");
+  const { fields, readMeta } = buildProfileMetaFields(active ?? {});
 
   const body = el("div", {
     className: "modal-form",
     children: [
       buildFormRow("Profile Name", nameInput),
       hint,
-      buildFormRow("GPU", gpuSelect),
+      ...fields,
     ],
   });
 
@@ -138,14 +183,14 @@ function openSaveModal() {
   saveBtn.addEventListener("click", () => {
     if (!validate()) return;
     const newName = nameInput.value.trim();
-    const newGpu  = gpuSelect.value || null;
+    const meta = readMeta();
     const existing = getAllProfiles();
     if (newName !== oldName && existing[newName]) {
       hint.textContent = `\u26A0 A profile named "${newName}" already exists.`;
       hint.classList.add("modal-hint-error");
       return;
     }
-    saveProfileMeta(oldName, newName, newGpu);
+    saveProfileMeta(oldName, newName, meta);
     closeModal();
     showProfileToast({ name: newName });
   });
@@ -164,14 +209,14 @@ function openExportModal() {
   const oldName = getActiveId();
 
   const { input: nameInput, hint, validate } = buildNameInput(active?.name ?? oldName);
-  const gpuSelect = buildGpuSelect(active?.gpu ?? "");
+  const { fields, readMeta } = buildProfileMetaFields(active ?? {});
 
   const body = el("div", {
     className: "modal-form",
     children: [
       buildFormRow("Profile Name", nameInput),
       hint,
-      buildFormRow("GPU", gpuSelect),
+      ...fields,
       el("p", {
         className: "modal-hint",
         text: "This will save the profile and download it as a JSON file.",
@@ -183,14 +228,14 @@ function openExportModal() {
   exportBtn.addEventListener("click", () => {
     if (!validate()) return;
     const newName = nameInput.value.trim();
-    const newGpu  = gpuSelect.value || null;
+    const meta = readMeta();
     const existing = getAllProfiles();
     if (newName !== oldName && existing[newName]) {
       hint.textContent = `\u26A0 A profile named "${newName}" already exists.`;
       hint.classList.add("modal-hint-error");
       return;
     }
-    saveProfileMeta(oldName, newName, newGpu);
+    saveProfileMeta(oldName, newName, meta);
     // exportActiveToFile() uses the now-updated active profile name.
     exportActiveToFile();
     closeModal();
@@ -307,14 +352,13 @@ function openManageModal() {
 
 function buildAddSection(listEl) {
   const { input: nameInput, hint, validate } = buildNameInput("");
-  const gpuSelect = buildGpuSelect(null);
+  const { fields, readMeta } = buildProfileMetaFields({});
   const addBtn = el("button", { className: "btn btn-primary", text: "+ New Profile" });
 
   addBtn.addEventListener("click", () => {
     if (!validate()) return;
     const name = nameInput.value.trim();
-    const gpu  = gpuSelect.value || null;
-    if (!createProfile(name, gpu)) {
+    if (!createProfile(name, readMeta())) {
       hint.textContent = `\u26A0 A profile named "${name}" already exists.`;
       hint.classList.add("modal-hint-error");
       return;
@@ -328,7 +372,7 @@ function buildAddSection(listEl) {
       el("h4", { text: "New Profile" }),
       buildFormRow("Name", nameInput),
       hint,
-      buildFormRow("GPU", gpuSelect),
+      ...fields,
       addBtn,
     ],
   });
@@ -349,18 +393,19 @@ function rebuildManageList(listEl) {
     const dot = gpu
       ? el("span", { className: "gpu-dot", attrs: { style: `background:${gpu.color}`, title: gpu.label } })
       : null;
-    const namePart = el("span", { className: "manage-row-name", children: [dot, el("span", { text: name })].filter(Boolean) });
-    if (isActive) {
-      namePart.appendChild(el("span", { className: "active-badge", text: "active" }));
+    const nameBlock = el("div", { className: "manage-row-info", children: [namePart] });
+    const hardwareLine = formatHardwareLine(profile);
+    if (hardwareLine) {
+      nameBlock.appendChild(el("span", { className: "manage-row-hardware", text: hardwareLine }));
     }
-    row.appendChild(namePart);
+    row.appendChild(nameBlock);
 
     // Action buttons
     const actions = el("div", { className: "manage-row-actions" });
 
     // Edit (inline name + GPU)
     const editBtn = el("button", { className: "btn-manage-action", text: "Edit" });
-    editBtn.addEventListener("click", () => showInlineEdit(row, name, profile.gpu ?? null));
+    editBtn.addEventListener("click", () => showInlineEdit(row, name, profile));
 
     // Duplicate
     const dupBtn = el("button", { className: "btn-manage-action", text: "Duplicate" });
@@ -382,21 +427,29 @@ function rebuildManageList(listEl) {
   }
 }
 
-// Inline edit: name + GPU.
-function showInlineEdit(row, oldName, oldGpu) {
+// Inline edit: name + GPU type + hardware text fields.
+function showInlineEdit(row, oldName, profile) {
   row.innerHTML = "";
 
+  const oldMeta = {
+    gpu: profile.gpu ?? null,
+    gpuModel: profile.gpuModel ?? "",
+    cpu: profile.cpu ?? "",
+  };
+
   const { input, hint, validate } = buildNameInput(oldName);
-  const gpuSelect = buildGpuSelect(oldGpu);
+  const gpuSelect = buildGpuSelect(oldMeta.gpu);
+  const gpuModelInput = buildHardwareInput("GPU", oldMeta.gpuModel);
+  const cpuInput = buildHardwareInput("CPU", oldMeta.cpu);
   const saveBtn   = el("button", { className: "btn-manage-action", text: "Save", attrs: { type: "button" } });
   const cancelBtn = el("button", { className: "btn-manage-action", text: "Cancel", attrs: { type: "button" } });
 
   saveBtn.addEventListener("click", () => {
     if (!validate()) return;
     const newName = input.value.trim();
-    const newGpu  = gpuSelect.value || null;
+    const meta = readProfileMetaFromForm(gpuSelect, gpuModelInput, cpuInput);
 
-    if (newName === oldName && newGpu === oldGpu) {
+    if (newName === oldName && profileMetaEquals(meta, oldMeta)) {
       rebuildManageList(row.parentElement);
       return;
     }
@@ -408,7 +461,7 @@ function showInlineEdit(row, oldName, oldGpu) {
       return;
     }
 
-    if (!saveProfileMeta(oldName, newName, newGpu)) {
+    if (!saveProfileMeta(oldName, newName, meta)) {
       hint.textContent = `\u26A0 Could not save changes.`;
       hint.classList.add("modal-hint-error");
       return;
@@ -420,7 +473,7 @@ function showInlineEdit(row, oldName, oldGpu) {
 
   row.appendChild(el("div", {
     className: "manage-inline manage-inline-edit",
-    children: [input, gpuSelect, hint, saveBtn, cancelBtn],
+    children: [input, gpuSelect, gpuModelInput, cpuInput, hint, saveBtn, cancelBtn],
   }));
 }
 
@@ -474,10 +527,11 @@ function showInlineDelete(row, name) {
 // ─── Profile bar (header) ─────────────────────────────────────────────────────
 
 function buildProfileBar(container) {
-  const gpuDot     = el("span", { className: "gpu-dot", attrs: { id: "activeGpuDot" } });
-  const select     = el("select", { className: "profile-select", attrs: { id: "profileSelect", "aria-label": "Active profile" } });
-  const saveBtn    = el("button", { className: "btn-profile-action", text: "Save",   attrs: { type: "button" } });
-  const manageBtn  = el("button", { className: "btn-profile-action", text: "Manage", attrs: { type: "button" } });
+  const gpuDot       = el("span", { className: "gpu-dot", attrs: { id: "activeGpuDot" } });
+  const hardwareEl   = el("span", { className: "profile-bar-hardware", attrs: { id: "activeProfileHardware" } });
+  const select       = el("select", { className: "profile-select", attrs: { id: "profileSelect", "aria-label": "Active profile" } });
+  const saveBtn      = el("button", { className: "btn-profile-action", text: "Save",   attrs: { type: "button" } });
+  const manageBtn    = el("button", { className: "btn-profile-action", text: "Manage", attrs: { type: "button" } });
 
   select.addEventListener("change", () => switchProfile(select.value));
   saveBtn.addEventListener("click",   openSaveModal);
@@ -490,6 +544,7 @@ function buildProfileBar(container) {
         el("span", { className: "profile-bar-label", text: "Profile:" }),
         gpuDot,
         select,
+        hardwareEl,
         saveBtn,
         manageBtn,
       ],
@@ -508,8 +563,9 @@ function buildProfileBar(container) {
       select.appendChild(opt);
     }
 
-    // GPU dot: show only if the active profile has a GPU set
-    const gpu = gpuById(getActiveProfile()?.gpu);
+    // GPU dot: show only if the active profile has a GPU type set
+    const profile = getActiveProfile();
+    const gpu = gpuById(profile?.gpu);
     if (gpu) {
       gpuDot.style.background = gpu.color;
       gpuDot.title = gpu.label;
@@ -517,6 +573,10 @@ function buildProfileBar(container) {
     } else {
       gpuDot.style.display = "none";
     }
+
+    const hardwareLine = formatHardwareLine(profile);
+    hardwareEl.textContent = hardwareLine;
+    hardwareEl.style.display = hardwareLine ? "" : "none";
   }
 
   update();
@@ -526,16 +586,18 @@ function buildProfileBar(container) {
 // ─── Profile badge (Comparison tab) ──────────────────────────────────────────
 
 function attachBadge(container) {
-  const dot     = el("span", { className: "gpu-dot badge-dot" });
-  const nameEl  = el("span", { className: "badge-name" });
-  const gpuEl   = el("span", { className: "badge-gpu" });
+  const dot          = el("span", { className: "gpu-dot badge-dot" });
+  const nameEl       = el("span", { className: "badge-name" });
+  const hardwareEl   = el("span", { className: "badge-hardware" });
+  const gpuTypeEl    = el("span", { className: "badge-gpu" });
   const badgeEl = el("div", {
     className: "profile-badge",
     children: [
       el("span", { className: "badge-label", text: "Viewing:" }),
       dot,
       nameEl,
-      gpuEl,
+      hardwareEl,
+      gpuTypeEl,
     ],
   });
   container.appendChild(badgeEl);
@@ -544,13 +606,24 @@ function attachBadge(container) {
     const p   = getActiveProfile();
     const gpu = gpuById(p?.gpu);
     nameEl.textContent = p?.name ?? "—";
+
+    const hardwareLine = formatHardwareLine(p);
+    if (hardwareLine) {
+      hardwareEl.textContent = ` · ${hardwareLine}`;
+      gpuTypeEl.textContent = "";
+    } else if (gpu) {
+      hardwareEl.textContent = "";
+      gpuTypeEl.textContent = ` · ${gpu.label}`;
+    } else {
+      hardwareEl.textContent = "";
+      gpuTypeEl.textContent = "";
+    }
+
     if (gpu) {
       dot.style.background = gpu.color;
-      dot.style.display    = "";
-      gpuEl.textContent    = gpu.label;
+      dot.style.display = "";
     } else {
       dot.style.display = "none";
-      gpuEl.textContent = "";
     }
   }
 

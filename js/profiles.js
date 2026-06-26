@@ -6,7 +6,7 @@
 //   • profileListeners — called whenever the profile list or active selection changes
 //
 // Storage key:  "preemptive.profiles.v1"
-// Schema:       { activeId: string, profiles: { [name]: { name, gpu, data } } }
+// Schema:       { activeId: string, profiles: { [name]: { name, gpu, gpuModel, cpu, data } } }
 //
 // Profile names double as storage keys. They must match NAME_REGEX so they
 // are always safe to use as JSON keys and filenames.
@@ -72,8 +72,26 @@ function normalizeSpawnerData(raw) {
   return d;
 }
 
-function makeProfile(name, gpu, rawData) {
-  return { name, gpu: gpu ?? null, data: normalizeSpawnerData(rawData) };
+export const HARDWARE_TEXT_MAX = 64;
+
+function normalizeHardwareText(value) {
+  return String(value ?? "").trim().slice(0, HARDWARE_TEXT_MAX);
+}
+
+function normalizeMeta(meta) {
+  if (meta == null || typeof meta === "string") {
+    return { gpu: meta ?? null, gpuModel: "", cpu: "" };
+  }
+  return {
+    gpu: meta.gpu ?? null,
+    gpuModel: normalizeHardwareText(meta.gpuModel),
+    cpu: normalizeHardwareText(meta.cpu),
+  };
+}
+
+function makeProfile(name, meta, rawData) {
+  const { gpu, gpuModel, cpu } = normalizeMeta(meta);
+  return { name, gpu, gpuModel, cpu, data: normalizeSpawnerData(rawData) };
 }
 
 // ─── Store ───────────────────────────────────────────────────────────────────
@@ -98,7 +116,11 @@ function notifyProfiles() { for (const fn of profileListeners) fn(); }
       const profiles = {};
       for (const [key, p] of Object.entries(parsed.profiles ?? {})) {
         if (isValidName(key)) {
-          profiles[key] = makeProfile(p.name ?? key, p.gpu, p.data);
+          profiles[key] = makeProfile(p.name ?? key, {
+            gpu: p.gpu,
+            gpuModel: p.gpuModel,
+            cpu: p.cpu,
+          }, p.data);
         }
       }
       const keys = Object.keys(profiles);
@@ -149,9 +171,9 @@ export function switchProfile(id) {
 }
 
 // Create a new empty profile. Returns false if name invalid or already taken.
-export function createProfile(name, gpu) {
+export function createProfile(name, meta) {
   if (!isValidName(name) || store.profiles[name]) return false;
-  store.profiles[name] = makeProfile(name, gpu ?? null, null);
+  store.profiles[name] = makeProfile(name, meta, null);
   persist();
   notifyProfiles();
   return true;
@@ -185,14 +207,17 @@ export function renameProfile(oldName, newName) {
   return true;
 }
 
-// Save profile metadata (name + GPU). Handles rename if the name changed.
+// Save profile metadata (name, GPU type, hardware text). Handles rename if needed.
 // Works for any profile, not only the active one.
-export function saveProfileMeta(oldName, newName, gpu) {
+export function saveProfileMeta(oldName, newName, meta) {
+  const { gpu, gpuModel, cpu } = normalizeMeta(meta);
   if (newName !== oldName) {
     if (!renameProfile(oldName, newName)) return false;
   }
   if (store.profiles[newName]) {
     store.profiles[newName].gpu = gpu ?? null;
+    store.profiles[newName].gpuModel = gpuModel;
+    store.profiles[newName].cpu = cpu;
     persist();
     notifyProfiles();
   }
@@ -203,7 +228,11 @@ export function saveProfileMeta(oldName, newName, gpu) {
 export function duplicateProfile(sourceName, newName) {
   if (!isValidName(newName) || !store.profiles[sourceName] || store.profiles[newName]) return false;
   const src = store.profiles[sourceName];
-  store.profiles[newName] = makeProfile(newName, src.gpu, JSON.parse(JSON.stringify(src.data)));
+  store.profiles[newName] = makeProfile(newName, {
+    gpu: src.gpu,
+    gpuModel: src.gpuModel,
+    cpu: src.cpu,
+  }, JSON.parse(JSON.stringify(src.data)));
   persist();
   notifyProfiles();
   return true;
@@ -216,7 +245,13 @@ export function exportActiveToFile() {
   const p = store.profiles[store.activeId];
   if (!p) return;
   const blob = new Blob(
-    [JSON.stringify({ name: p.name, gpu: p.gpu, data: p.data }, null, 2)],
+    [JSON.stringify({
+      name: p.name,
+      gpu: p.gpu,
+      gpuModel: p.gpuModel,
+      cpu: p.cpu,
+      data: p.data,
+    }, null, 2)],
     { type: "application/json" }
   );
   const url = URL.createObjectURL(blob);
@@ -247,7 +282,9 @@ export function importFromFile(file, onConflict) {
         }
         if (!isValidName(name)) name = "imported";
 
-        const gpu  = parsed.gpu  ?? null;
+        const gpu  = parsed.gpu ?? null;
+        const gpuModel = parsed.gpuModel ?? "";
+        const cpu = parsed.cpu ?? "";
         const data = normalizeSpawnerData(parsed.data);
         let wasOverwrite = false;
 
@@ -263,7 +300,7 @@ export function importFromFile(file, onConflict) {
           }
         }
 
-        store.profiles[name] = makeProfile(name, gpu, data);
+        store.profiles[name] = makeProfile(name, { gpu, gpuModel, cpu }, data);
         persist();
         notifyProfiles();
         resolve({ status: wasOverwrite ? "overwritten" : "imported", name });
