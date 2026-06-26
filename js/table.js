@@ -116,6 +116,21 @@ export function initTable(panelsContainer, { onExportClick, onImportClick } = {}
   });
   filterBar.appendChild(showAllBtn);
 
+  const hideAllBtn = el("button", { className: "btn-hide-all", text: "Hide All", attrs: { type: "button" } });
+  hideAllBtn.addEventListener("click", () => {
+    for (const spawner of SPAWNERS) {
+      spawnerVisible.set(spawner.id, false);
+      spawnerCheckboxes.get(spawner.id).checked = false;
+      for (const variant of VARIANTS) {
+        const rowKey = `${spawner.id}.${variant.id}`;
+        variantVisible.set(rowKey, false);
+        const refs = rowRefs.get(rowKey);
+        if (refs) refs.checkbox.checked = false;
+        applyRowVisibility(rowKey);
+      }
+    }
+  });
+  filterBar.appendChild(hideAllBtn);
   panel.appendChild(filterBar);
 
   // A row is visible only when its spawner AND its own variant checkbox are on.
