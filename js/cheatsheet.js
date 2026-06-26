@@ -178,33 +178,3 @@ export function initCheatsheet() {
     },
   };
 }
-
-// Left-panel sub-tabs: Values / Background / Style (presentation only).
-export function initControlsSubtabs() {
-  const bar = byId("controlsSubtabs");
-  if (!bar) return;
-
-  const buttons = bar.querySelectorAll(".controls-subtab");
-  const panels = document.querySelectorAll(".controls-subpanels > .controls-subpanel");
-
-  function activate(id) {
-    buttons.forEach((btn) => {
-      btn.classList.toggle("is-active", btn.dataset.subtab === id);
-    });
-    panels.forEach((panel) => {
-      const isActive = panel.id === `subpanel-${id}`;
-      panel.classList.toggle("is-active", isActive);
-      panel.hidden = !isActive;
-    });
-  }
-
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const id = btn.dataset.subtab;
-      if (id) activate(id);
-    });
-  });
-
-  // Sync initial state (Values is default).
-  activate("values");
-}

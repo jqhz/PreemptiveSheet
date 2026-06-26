@@ -13,12 +13,41 @@
 import { SPAWNERS } from "./constants.js";
 import { byId, clampNumberInputToBounds } from "./utils.js";
 import { initTabs } from "./tabs.js";
-import { initCheatsheet, initControlsSubtabs } from "./cheatsheet.js";
+import { initCheatsheet } from "./cheatsheet.js";
 import { initWallpaper } from "./wallpaper.js";
 import { initLog } from "./log.js";
 import { initTable } from "./table.js";
 import { initProfileUI } from "./profileUI.js";
 import { setupCustomNumberSteppers } from "./numberSteppers.js";
+
+// Cheatsheet left-panel sub-tabs (Values / Background / Style).
+function initControlsSubtabs() {
+  const bar = byId("controlsSubtabs");
+  if (!bar) return;
+
+  const buttons = bar.querySelectorAll(".controls-subtab");
+  const panels = document.querySelectorAll(".controls-subpanels > .controls-subpanel");
+
+  function activate(id) {
+    buttons.forEach((btn) => {
+      btn.classList.toggle("is-active", btn.dataset.subtab === id);
+    });
+    panels.forEach((panel) => {
+      const isActive = panel.id === `subpanel-${id}`;
+      panel.classList.toggle("is-active", isActive);
+      panel.hidden = !isActive;
+    });
+  }
+
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.subtab;
+      if (id) activate(id);
+    });
+  });
+
+  activate("values");
+}
 
 function init() {
   const panels = byId("panels");
